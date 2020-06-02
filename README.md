@@ -62,7 +62,7 @@ These tools are installed by using npm package manager. You need to have node.js
 
 * `npm install -g firebase-tools` or `yarn global add firebase-tools`
 * `firebase init` (You have to choose the tools to be configured! e.g. database, functions and hosting)
-* `firebase functions:config:set bigquery.datasetname="weather_station_iot" bigquery.tablename="raw_data"` (only in case you have the dataset and the table as environment vars)
+* `firebase functions:config:set bigquery.datasetname="aquarium_monitor_dataset" bigquery.tablename="raw_data"` (only in case you have the dataset and the table as environment vars)
 * `firebase deploy`
 
 Access https://console.firebase.google.com/ to check the new configuration.
