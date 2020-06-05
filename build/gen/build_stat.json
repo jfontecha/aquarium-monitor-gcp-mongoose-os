@@ -2,5 +2,5 @@
   "arch": "esp32",
   "platform": "esp32",
   "app_name": "aquarium-monitor-gcp-mongoose-os",
-  "build_time_ms": 18277
+  "build_time_ms": 31685
 }
