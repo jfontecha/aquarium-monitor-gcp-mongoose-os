@@ -18,8 +18,7 @@ load('api_sys.js');
 //load my manager libraries
 load('display_manager.js');
 load('tds_manager.js');
-
-let WATER_TEMP = 25; //Reference value of water temperature (better: get it from a sensor)
+load('temperature_manager.js');
 
 // values to measure
 let temperature = 0;
@@ -36,7 +35,7 @@ let isConnected = false;
 
 let getInfo = function() {
   return JSON.stringify({
-    temp: 23,
+    temp: temperature,
     tds: tds,
     ph: 6.5
     /*temp: dht.getTemp(),
@@ -58,12 +57,12 @@ let setDisplay = function() {
   updateMessageDisplay(1, 32, 29, "ppm");
   /* SHOW PH */
   drawRoundRectangle(0, 41, 53, 13, 3);
-  updateMessageDisplay(1, 6, 44, "PH " + JSON.stringify(temperature));
+  updateMessageDisplay(1, 6, 44, "PH " + JSON.stringify(6));
   /* SHOW TIME */
   updateMessageDisplay(1, 3, 57, timestring);
    /* SHOW TEMPERATURE */
   updateMessageDisplay(1, 60, 16, "Water Temp.");
-  updateMessageDisplay(3, 80, 29, JSON.stringify(23));
+  updateMessageDisplay(3, 80, 29, JSON.stringify(temperature));
   drawCircle(120, 32, 3);
 
   updateDisplay();
@@ -79,9 +78,12 @@ Timer.set(60 * 1000, true, function() {
 
 /* Display update every 5 seconds */
 Timer.set(5000, true, function() {
-  tds = getTDSValue(WATER_TEMP);
+  //Get temperature value in C degrees
+  temperature = getTempValue();
+  //Get TDS value with temperature compensation
+  tds = getTDSValue(temperature);
   setDisplay();
-  print('Info:', getInfo());
+  print('Info: ', getInfo());
 },null);
 
 /* Get timestamp every second */
@@ -148,13 +150,6 @@ function publishData() {
   //print('Raw Po voltage: ', phVoltage);
   
 //}, null);
-
-Timer.set(1000 /* milliseconds */, Timer.REPEAT, function() {
-  setDisplay();
-  //print("temperature = ", temperature);
-  //print("HORA = ", timestring);
-  temperature=temperature+2;
-}, null);
 
 
 /*
