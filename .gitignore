@@ -2,5 +2,6 @@ functions/node_modules
 firmware/*.pem
 firmware/build/
 .firebase/
+web-app/.env
 
 .vscode
