@@ -43,15 +43,30 @@ exports.receiveTelemetry = functions.pubsub
     //REVISAR ESTO
     return Promise.all([
       insertIntoBigquery(data),
+      deleleteLastItems(data),
       updateCurrentDataFirebase(data)
     ]);
   });
+
+  /**
+   * clean up items that are older than 2 (1) hours at that time:
+   * @param {*} data 
+   */
+  function deleleteLastItems(data){
+    var ref = db.ref(`/devices/${data.deviceId}`);
+    var now = Date.now();
+    var cutoff = now - 1 * 60 * 60 * 1000;
+    var old = ref.orderByChild('lastTimestamp').endAt(cutoff).limitToLast(1);
+    var listener = old.on('child_added', function(snapshot) {
+        snapshot.ref.remove();
+    });
+  }
 
 /** 
  * Maintain last status in firebase
 */
 function updateCurrentDataFirebase(data) {
-  return db.ref(`/devices/${data.deviceId}`).set({
+  return db.ref(`/devices/${data.deviceId}`).push({
     temp: data.temp,
     tds: data.tds,
     ph: data.ph,
