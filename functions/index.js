@@ -11,6 +11,8 @@ admin.initializeApp(functions.config().firebase);
 
 const db = admin.database();
 
+const MAX_FIREBASE_NODES = 5;
+
 /**
  * Receive data from pubsub, then 
  * Write telemetry raw data to bigquery
@@ -43,34 +45,45 @@ exports.receiveTelemetry = functions.pubsub
     //REVISAR ESTO
     return Promise.all([
       insertIntoBigquery(data),
-      deleleteLastItems(data),
+      deleteFirstItem(data),
       updateCurrentDataFirebase(data)
     ]);
   });
 
   /**
-   * clean up items that are older than 2 (1) hours at that time:
+   * Keep the last items according to MAX_FIREBASE_NODES
    * @param {*} data 
    */
-  function deleleteLastItems(data){
-    var ref = db.ref(`/devices/${data.deviceId}`);
-    var now = Date.now();
-    var cutoff = now - 1 * 60 * 60 * 1000;
-    var old = ref.orderByChild('lastTimestamp').endAt(cutoff).limitToLast(1);
-    var listener = old.on('child_added', function(snapshot) {
-        snapshot.ref.remove();
-    });
+  function deleteFirstItem(data){
+
+    var ref_count = db.ref(`/devices/${data.deviceId}`).on('value', function(snapshot) {
+
+        //Remove the first node when the total of messages is greater than the maximum
+        if (snapshot.numChildren() > MAX_FIREBASE_NODES){
+
+          var ref = db.ref(`/devices/${data.deviceId}`).limitToFirst(1);
+          ref.once('value', function(snap){
+              snap.forEach(function(child) {
+                  var firstItem = child.val();
+                  console.log("The first item");
+                  console.log(firstItem.timestamp);  
+                  child.ref.remove();   
+              });
+          });
+
+        }
+    }) 
   }
 
 /** 
- * Maintain last status in firebase
+ * Save last status in firebase
 */
 function updateCurrentDataFirebase(data) {
   return db.ref(`/devices/${data.deviceId}`).push({
     temp: data.temp,
     tds: data.tds,
     ph: data.ph,
-    lastTimestamp: data.timestamp
+    timestamp: data.timestamp
   });
 }
 
