@@ -1,17 +1,13 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const cors = require('cors')({ origin: true });
-//const bigquery = require('@google-cloud/bigquery');//(); //error por el parentesis!
 
-//New
 const {BigQuery} = require('@google-cloud/bigquery');
 const bigquery = new BigQuery();
 
 admin.initializeApp(functions.config().firebase);
 
 const db = admin.database();
-
-const MAX_FIREBASE_NODES = 5;
 
 /**
  * Receive data from pubsub, then 
@@ -42,44 +38,17 @@ exports.receiveTelemetry = functions.pubsub
       return 0;
     }
 
-    //REVISAR ESTO
     return Promise.all([
       insertIntoBigquery(data),
-      deleteFirstItem(data),
       updateCurrentDataFirebase(data)
     ]);
   });
-
-  /**
-   * Keep the last items according to MAX_FIREBASE_NODES
-   * @param {*} data 
-   */
-  function deleteFirstItem(data){
-
-    var ref_count = db.ref(`/devices/${data.deviceId}`).on('value', function(snapshot) {
-
-        //Remove the first node when the total of messages is greater than the maximum
-        if (snapshot.numChildren() > MAX_FIREBASE_NODES){
-
-          var ref = db.ref(`/devices/${data.deviceId}`).limitToFirst(1);
-          ref.once('value', function(snap){
-              snap.forEach(function(child) {
-                  var firstItem = child.val();
-                  console.log("The first item");
-                  console.log(firstItem.timestamp);  
-                  child.ref.remove();   
-              });
-          });
-
-        }
-    }) 
-  }
 
 /** 
  * Save last status in firebase
 */
 function updateCurrentDataFirebase(data) {
-  return db.ref(`/devices/${data.deviceId}`).push({
+  return db.ref(`/devices/${data.deviceId}`).set({
     temp: data.temp,
     tds: data.tds,
     ph: data.ph,

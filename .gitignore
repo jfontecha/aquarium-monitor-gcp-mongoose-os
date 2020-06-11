@@ -1,4 +1,5 @@
 functions/node_modules
+functions/index_old.js
 firmware/*.pem
 firmware/build/
 .firebase/

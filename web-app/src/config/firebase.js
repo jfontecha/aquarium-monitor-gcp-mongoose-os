@@ -5,8 +5,6 @@
 
 import firebase from 'firebase';
 
-
-
 const config = {
     apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
     authDomain: process.env.REACT_APP_FIREBASE_AUTHDOMAIN,
@@ -19,8 +17,11 @@ const config = {
 }
 
 firebase.initializeApp(config);
-export default firebase;
 
 //export const devicesRef = firebase.database.ref('devices/esp32_5B3BD8');
 
-//export const devicesRef = database.child('devices/esp32_5B3BD8');
+export default firebase;
+
+export const REF_DATABASE = 'devices/esp32_5B3BD8';
+
+//export const devicesRef = firebase.database.ref('devices/esp32_5B3BD8');

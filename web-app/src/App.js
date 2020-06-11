@@ -1,7 +1,9 @@
 import React from 'react';
-import './App.css';
+import './styles.css';
 
 import RealTime from './components/RealTime';
+import Header from './components/Header';
+import ProfileCard from './components/ProfileCard';
 
 /*
 const db = firebase.database();
@@ -24,7 +26,8 @@ class App extends React.Component{
   render(){
     return (
       <div>
-        <RealTime />
+        <Header/>
+        <RealTime/>
       </div>
     );
   }

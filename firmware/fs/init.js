@@ -68,8 +68,8 @@ let setDisplay = function() {
   updateDisplay();
 };
 
-/* Publication of data through MQTT every 60 seconds */
-Timer.set(60 * 1000, true, function() {
+/* Publication of data through MQTT every 60 seconds (60*1000) */
+Timer.set(60*1000, true, function() {
   if (isConnected) {
     //calculate average of measures! (ej tds)
     publishData();
@@ -77,21 +77,27 @@ Timer.set(60 * 1000, true, function() {
 },null);
 
 /* Display update every 5 seconds */
-Timer.set(5000, true, function() {
+Timer.set(5000, Timer.REPEAT, function() {
   //Get temperature value in C degrees
   temperature = getTempValue();
   //Get TDS value with temperature compensation
   tds = getTDSValue(temperature);
+
+  let now = Timer.now();
+  timestring = Timer.fmt("%d/%m/%Y %H:%M %p", now);
+
   setDisplay();
+
   print('Info: ', getInfo());
 },null);
 
 /* Get timestamp every second */
-Timer.set(1000 /* milliseconds */, Timer.REPEAT, function() {
-  let now = Timer.now();
-  timestring = Timer.fmt("%d/%m/%Y %H:%M:%S", now);
-}, null);
+//Timer.set(1000 /* milliseconds */, Timer.REPEAT, function() {
+//  let now = Timer.now();
+//  timestring = Timer.fmt("%d/%m/%Y %H:%M:%p", now);
 
+//  setDisplay();
+//}, null);
 
 /* MQTT event handler to publish data if connected */
 MQTT.setEventHandler(function(conn, ev) {
